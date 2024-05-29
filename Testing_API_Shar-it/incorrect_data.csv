@@ -1,0 +1,17 @@
+incorrect_password,incorrect_email,incorrect_name,incorrect_age
+АБВГДабвгд,test>@example.com,b,1.5
+Abcde,test<@example.com,"   ",Age
+AbcdeFGhij12345123456,test@.com,256abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ123456789101,?
+1234567,test@example.,1,-1
+T8m,test@example.comm,!,05
+ABCDEFG,test@example.c,258abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ123456789101ff,Пять
+hijk123,test@example,Ж,100
+АБВГДабвгд567,1,-,101
+%!@^#&!!!,почта@example.com,к,1000
+ ἱερογλύφος,test @example.com,f,1b
+M5n!,test;@example.com,u,15f
+AbcdeFGhij12345123456!_!,test:@example.com,s,25!
+ ἱερογλύφος,test]@example.com,l,_26
+AbcdeFGhij12345123456AbcdeFGhij12345123456,test[@example.com,.,99.9
+............,test@@example.com,",",15 years
+這/äß這/äß這/äß,"test,@example.com",b,old

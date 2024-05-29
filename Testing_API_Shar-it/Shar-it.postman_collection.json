@@ -1,0 +1,2801 @@
+{
+	"info": {
+		"_postman_id": "03b39afb-208b-4922-89df-f79d85b7d511",
+		"name": "Shar-it",
+		"description": "Тестирование тренажёра Shar-it.\n\nSwagger: [https://training.shar-it.com/swagger/index.html](https://training.shar-it.com/swagger/index.html)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28416513"
+	},
+	"item": [
+		{
+			"name": "Positive flow",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content-type is present\", function () {\r",
+									"    pm.response.to.have.header(\"content-type\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body contains userId\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"userId\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"userId includes -\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.userId).to.include(\"-\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"set variable userId\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    pm.environment.set(\"userId\", jsonData.userId);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"set variables email, password\", function() {\r",
+									"    let req = JSON.parse(pm.request.body.raw)\r",
+									"    pm.environment.set(\"email\", req.email)\r",
+									"    pm.environment.set(\"password\", req.password);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function getRandomInt(min, max) {\r",
+									"    min = Math.ceil(min);\r",
+									"    max = Math.floor(max);\r",
+									"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+									"}\r",
+									"let random_age = getRandomInt(0, 99)\r",
+									"pm.environment.set(\"random_age\", random_age)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://training.shar-it.com/api/Authenticate/register",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"Authenticate",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"userId correct\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.userId).to.eql(pm.variables.get(\"userId\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"set variable token\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    pm.environment.set(\"token\", jsonData.token);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://training.shar-it.com/api/Authenticate/login",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"Authenticate",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"response body\", function() {\r",
+									"    pm.expect(pm.response.text()).to.include(\"email\", \"name\", \"age\");\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Bearer {{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "www-authenticate",
+								"value": ""
+							}
+						],
+						"url": {
+							"raw": "https://training.shar-it.com/api/User/get_user_info?UserId={{userId}}",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"User",
+								"get_user_info"
+							],
+							"query": [
+								{
+									"key": "UserId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status success\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set variable changed_name, changed_age\", function() {\r",
+									"    let req = JSON.parse(pm.request.body.raw)\r",
+									"    pm.environment.set(\"changed_name\", req.name)\r",
+									"    pm.environment.set(\"changed_age\", req.age);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function getRandomInt(min, max) {\r",
+									"    min = Math.ceil(min);\r",
+									"    max = Math.floor(max);\r",
+									"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+									"}\r",
+									"let random_age = getRandomInt(0, 99)\r",
+									"pm.environment.set(\"random_age\", random_age)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Bearer {{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": \"{{userId}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://training.shar-it.com/api/User/edit_user",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"User",
+								"edit_user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user info changed name, age",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"changed name, age\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.name).to.eql(pm.variables.get(\"changed_name\"))\r",
+									"    pm.expect(jsonData.age).to.eql(pm.variables.get(\"changed_age\"));\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Bearer {{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "www-authenticate",
+								"value": ""
+							}
+						],
+						"url": {
+							"raw": "https://training.shar-it.com/api/User/get_user_info?UserId={{userId}}",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"User",
+								"get_user_info"
+							],
+							"query": [
+								{
+									"key": "UserId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"success\", function() {\r",
+									"pm.expect(pm.response.text()).to.include(\"success\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Bearer {{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "www-authenticate",
+								"value": ""
+							}
+						],
+						"url": {
+							"raw": "https://training.shar-it.com/api/User/delete_user?UserId={{userId}}",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"User",
+								"delete_user"
+							],
+							"query": [
+								{
+									"key": "UserId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login after deleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"unauthorized\", function() {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://training.shar-it.com/api/Authenticate/login",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"Authenticate",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Позитивный сценарий"
+		},
+		{
+			"name": "Correct data",
+			"item": [
+				{
+					"name": "Correct email",
+					"item": [
+						{
+							"name": "Register correct email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body contains userId\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"userId\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response time is less than 200ms\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable userId\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"userId\", jsonData.userId);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variables email, password\", function() {\r",
+											"    let req = JSON.parse(pm.request.body.raw)\r",
+											"    pm.environment.set(\"email\", req.email)\r",
+											"    pm.environment.set(\"password\", req.password);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomInt(min, max) {\r",
+											"    min = Math.ceil(min);\r",
+											"    max = Math.floor(max);\r",
+											"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+											"}\r",
+											"let random_age = getRandomInt(0, 99)\r",
+											"pm.environment.set(\"random_age\", random_age)"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{correct_email}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/register",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login correct email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"userId correct\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.userId).to.eql(pm.variables.get(\"userId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable token\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"token\", jsonData.token);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/login",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user correct email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"success\", function() {\r",
+											"pm.expect(pm.response.text()).to.include(\"success\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "www-authenticate",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "https://training.shar-it.com/api/User/delete_user?UserId={{userId}}",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"User",
+										"delete_user"
+									],
+									"query": [
+										{
+											"key": "UserId",
+											"value": "{{userId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Для подстановки значений переменной использовать файл сorrect_email.csv"
+				},
+				{
+					"name": "Correct name",
+					"item": [
+						{
+							"name": "Register correct name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body contains userId\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"userId\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response time is less than 200ms\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable userId\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"userId\", jsonData.userId);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variables email, password\", function() {\r",
+											"    let req = JSON.parse(pm.request.body.raw)\r",
+											"    pm.environment.set(\"email\", req.email)\r",
+											"    pm.environment.set(\"password\", req.password);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomInt(min, max) {\r",
+											"    min = Math.ceil(min);\r",
+											"    max = Math.floor(max);\r",
+											"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+											"}\r",
+											"let random_age = getRandomInt(0, 99)\r",
+											"pm.environment.set(\"random_age\", random_age)"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{correct_name}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/register",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login correct name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"userId correct\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.userId).to.eql(pm.variables.get(\"userId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable token\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"token\", jsonData.token);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/login",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user correct name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"success\", function() {\r",
+											"pm.expect(pm.response.text()).to.include(\"success\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "www-authenticate",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "https://training.shar-it.com/api/User/delete_user?UserId={{userId}}",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"User",
+										"delete_user"
+									],
+									"query": [
+										{
+											"key": "UserId",
+											"value": "{{userId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Для подстановки значений переменной использовать файл correct_name.csv"
+				},
+				{
+					"name": "Correct age",
+					"item": [
+						{
+							"name": "Register correct age",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body contains userId\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"userId\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response time is less than 200ms\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable userId\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"userId\", jsonData.userId);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variables email, password\", function() {\r",
+											"    let req = JSON.parse(pm.request.body.raw)\r",
+											"    pm.environment.set(\"email\", req.email)\r",
+											"    pm.environment.set(\"password\", req.password);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{correct_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/register",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login correct age",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"userId correct\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.userId).to.eql(pm.variables.get(\"userId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable token\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"token\", jsonData.token);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/login",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user correct age",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"success\", function() {\r",
+											"pm.expect(pm.response.text()).to.include(\"success\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "www-authenticate",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "https://training.shar-it.com/api/User/delete_user?UserId={{userId}}",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"User",
+										"delete_user"
+									],
+									"query": [
+										{
+											"key": "UserId",
+											"value": "{{userId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Для подстановки значений переменной использовать файл correct_age.csv"
+				},
+				{
+					"name": "Correct password",
+					"item": [
+						{
+							"name": "Register correct password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body contains userId\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"userId\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response time is less than 200ms\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable userId\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"userId\", jsonData.userId);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variables email, password\", function() {\r",
+											"    let req = JSON.parse(pm.request.body.raw)\r",
+											"    pm.environment.set(\"email\", req.email)\r",
+											"    pm.environment.set(\"password\", req.password);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomInt(min, max) {\r",
+											"    min = Math.ceil(min);\r",
+											"    max = Math.floor(max);\r",
+											"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+											"}\r",
+											"let random_age = getRandomInt(0, 99)\r",
+											"pm.environment.set(\"random_age\", random_age)"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{correct_password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/register",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login correct password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"userId correct\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.userId).to.eql(pm.variables.get(\"userId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable token\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"token\", jsonData.token);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/login",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user correct password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"success\", function() {\r",
+											"pm.expect(pm.response.text()).to.include(\"success\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "www-authenticate",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "https://training.shar-it.com/api/User/delete_user?UserId={{userId}}",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"User",
+										"delete_user"
+									],
+									"query": [
+										{
+											"key": "UserId",
+											"value": "{{userId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Для подстановки значений переменной использовать файл correct_password.csv"
+				}
+			],
+			"description": "Позитивные проверки\n\nИспользовать csv файлы со значениями для переменных"
+		},
+		{
+			"name": "Incorrect data",
+			"item": [
+				{
+					"name": "Register user exists",
+					"item": [
+						{
+							"name": "Register",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body contains userId\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"userId\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Set variable userId\", function() {\r",
+											"    let jsonData=pm.response.json()\r",
+											"    pm.environment.set(\"userId\", jsonData.userId);\r",
+											"})\r",
+											"\r",
+											"pm.test(\"set variable userId\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"userId\", jsonData.userId);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variables email, password\", function() {\r",
+											"    let req = JSON.parse(pm.request.body.raw)\r",
+											"    pm.environment.set(\"email\", req.email)\r",
+											"    pm.environment.set(\"password\", req.password);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomInt(min, max) {\r",
+											"    min = Math.ceil(min);\r",
+											"    max = Math.floor(max);\r",
+											"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+											"}\r",
+											"let random_age = getRandomInt(0, 99)\r",
+											"pm.environment.set(\"random_age\", random_age)"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/register",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"userId correct\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.userId).to.eql(pm.variables.get(\"userId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"set variable token\", function() {\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.environment.set(\"token\", jsonData.token);\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/login",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register again",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 500\", function () {\r",
+											"    pm.response.to.have.status(500);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"message\", function() {\r",
+											"    pm.expect(pm.response.text()).to.include(\"User already exists\");\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomInt(min, max) {\r",
+											"    min = Math.ceil(min);\r",
+											"    max = Math.floor(max);\r",
+											"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+											"}\r",
+											"let random_age = getRandomInt(0, 99)\r",
+											"pm.environment.set(\"random_age\", random_age)"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://training.shar-it.com/api/Authenticate/register",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"Authenticate",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"success\", function() {\r",
+											"pm.expect(pm.response.text()).to.include(\"success\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "Bearer {{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "Authorization",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "www-authenticate",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "https://training.shar-it.com/api/User/delete_user?UserId={{userId}}",
+									"protocol": "https",
+									"host": [
+										"training",
+										"shar-it",
+										"com"
+									],
+									"path": [
+										"api",
+										"User",
+										"delete_user"
+									],
+									"query": [
+										{
+											"key": "UserId",
+											"value": "{{userId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Запрет регистрации с уже существующим email пользователя"
+				},
+				{
+					"name": "Empty",
+					"item": [
+						{
+							"name": "Register empty",
+							"item": [
+								{
+									"name": "Register email empty",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    let jsonData=pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Email[0]).to.eql(\"Email is required\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Contains traceId\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"traceId\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function getRandomInt(min, max) {\r",
+													"    min = Math.ceil(min);\r",
+													"    max = Math.floor(max);\r",
+													"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+													"}\r",
+													"let random_age = getRandomInt(0, 99)\r",
+													"pm.environment.set(\"random_age\", random_age)"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Register password empty",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    let jsonData=pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Password[0]).to.eql(\"Password is required\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function getRandomInt(min, max) {\r",
+													"    min = Math.ceil(min);\r",
+													"    max = Math.floor(max);\r",
+													"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+													"}\r",
+													"let random_age = getRandomInt(0, 99)\r",
+													"pm.environment.set(\"random_age\", random_age)"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Register name empty",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"Name is required\", \"Name must have from 2 to 255 characters\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function getRandomInt(min, max) {\r",
+													"    min = Math.ceil(min);\r",
+													"    max = Math.floor(max);\r",
+													"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+													"}\r",
+													"let random_age = getRandomInt(0, 99)\r",
+													"pm.environment.set(\"random_age\", random_age)"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Register age empty",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"Age is required\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": \"\",\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"description": "Регистрация с пустыми обязательными полями"
+						},
+						{
+							"name": "Login empty",
+							"item": [
+								{
+									"name": "Login email empty",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function() {\r",
+													"    let jsonData = pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Email[0]).to.eql(\"Email is required\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"\",\r\n  \"password\": \"{{password}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/login",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Login password empty",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function() {\r",
+													"    let jsonData = pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Password[0]).to.eql(\"Password is required\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/login",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Login email and password empty",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function() {\r",
+													"    let jsonData = pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Password[0]).to.eql(\"Password is required\")\r",
+													"    pm.expect(jsonData.errors.Email[0]).to.eql(\"Email is required\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"\",\r\n  \"password\": \"\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/login",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"login"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"description": "Логин с пустыми полями"
+						}
+					],
+					"description": "Пустые обязательные поля"
+				},
+				{
+					"name": "Incorrect",
+					"item": [
+						{
+							"name": "Register incorrect",
+							"item": [
+								{
+									"name": "Register email incorrect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    let jsonData=pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Email[0]).to.include(\"Email is incorrect\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Contains traceId\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"traceId\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function getRandomInt(min, max) {\r",
+													"    min = Math.ceil(min);\r",
+													"    max = Math.floor(max);\r",
+													"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+													"}\r",
+													"let random_age = getRandomInt(0, 99)\r",
+													"pm.environment.set(\"random_age\", random_age)"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{incorrect_email}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Register password incorrect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    let jsonData=pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Password[0]).to.include(\"Password must be between 6 and 20 characters, must include at least one upper and one lower case letter\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Contains traceId\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"traceId\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function getRandomInt(min, max) {\r",
+													"    min = Math.ceil(min);\r",
+													"    max = Math.floor(max);\r",
+													"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+													"}\r",
+													"let random_age = getRandomInt(0, 99)\r",
+													"pm.environment.set(\"random_age\", random_age)"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{incorrect_password}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Register name incorrect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    let jsonData=pm.response.json()\r",
+													"    pm.expect(jsonData.errors.Name[0]).to.include(\"Name must have from 2 to 255 characters\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Contains traceId\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"traceId\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function getRandomInt(min, max) {\r",
+													"    min = Math.ceil(min);\r",
+													"    max = Math.floor(max);\r",
+													"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+													"}\r",
+													"let random_age = getRandomInt(0, 99)\r",
+													"pm.environment.set(\"random_age\", random_age)"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{incorrect_name}}\",\r\n  \"age\": {{random_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Register age incorrect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code 400\", function(){\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Error text\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"errors\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Contains traceId\", function(){\r",
+													"    pm.expect(pm.response.text()).to.include(\"traceId\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{incorrect_age}},\r\n  \"password\": \"{{$randomPassword}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/register",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"register"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"description": "Регистрация с невалидными значениями полей ввода\n\nДля подстановки значений переменных использовать файл incorrect_data.csv"
+						},
+						{
+							"name": "Login incorrect",
+							"item": [
+								{
+									"name": "Login email incorrect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 401\", function () {\r",
+													"    pm.response.to.have.status(401);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Unauthorized\", function() {\r",
+													"    let jsonData = pm.response.json()\r",
+													"    pm.expect(jsonData.title).to.eql(\"Unauthorized\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{correct_email}}\",\r\n  \"password\": \"{{existing_password}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/login",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Login password incorrect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 401\", function () {\r",
+													"    pm.response.to.have.status(401);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Unauthorized\", function() {\r",
+													"    let jsonData = pm.response.json()\r",
+													"    pm.expect(jsonData.title).to.eql(\"Unauthorized\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{existing_email}}\",\r\n  \"password\": \"{{correct_password}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/login",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Login password and email incorrect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 401\", function () {\r",
+													"    pm.response.to.have.status(401);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Unauthorized\", function() {\r",
+													"    let jsonData = pm.response.json()\r",
+													"    pm.expect(jsonData.title).to.eql(\"Unauthorized\");\r",
+													"})"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"{{correct_email}}\",\r\n  \"password\": \"{{correct_password}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://training.shar-it.com/api/Authenticate/login",
+											"protocol": "https",
+											"host": [
+												"training",
+												"shar-it",
+												"com"
+											],
+											"path": [
+												"api",
+												"Authenticate",
+												"login"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"description": "Логин с недействительной парой логин/пароль"
+						}
+					],
+					"description": "Невалидные значения"
+				}
+			],
+			"description": "Негативные проверки"
+		},
+		{
+			"name": "Existing user",
+			"item": [
+				{
+					"name": "Login existing user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"userId correct\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.userId).to.eql(pm.variables.get(\"existing_userId\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"set variable token\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    pm.environment.set(\"existing_token\", jsonData.token);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"expiration\", function() {\r",
+									"    pm.expect(pm.response.text()).to.include(\"expiration\");   \r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{existing_email}}\",\r\n  \"password\": \"{{existing_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://training.shar-it.com/api/Authenticate/login",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"Authenticate",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get existing user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"email\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    let existing_email = pm.variables.get(\"existing_email\")\r",
+									"    pm.expect(jsonData.email).to.eql(existing_email);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"name\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    let existing_name = pm.variables.get(\"existing_name\")\r",
+									"    pm.expect(jsonData.name).to.eql(existing_name);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"age\", function() {\r",
+									"    let jsonData = pm.response.json()\r",
+									"    let existing_age = parseInt(pm.variables.get(\"existing_age\"))\r",
+									"    pm.expect(jsonData.age).to.eql(existing_age);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Bearer {{existing_token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "www-authenticate",
+								"value": ""
+							}
+						],
+						"url": {
+							"raw": "https://training.shar-it.com/api/User/get_user_info?UserId={{existing_userId}}",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"User",
+								"get_user_info"
+							],
+							"query": [
+								{
+									"key": "UserId",
+									"value": "{{existing_userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit existing user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status success\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set variable existing_name, existing_age\", function() {\r",
+									"    let req = JSON.parse(pm.request.body.raw)\r",
+									"    pm.environment.set(\"existing_name\", req.name)\r",
+									"    pm.environment.set(\"existing_age\", req.age);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function getRandomInt(min, max) {\r",
+									"    min = Math.ceil(min);\r",
+									"    max = Math.floor(max);\r",
+									"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+									"}\r",
+									"let random_age = getRandomInt(0, 100)\r",
+									"pm.environment.set(\"random_age\", random_age)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Bearer {{existing_token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": \"{{existing_userId}}\",\r\n  \"name\": \"{{$randomUserName}}\",\r\n  \"age\": {{random_age}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://training.shar-it.com/api/User/edit_user",
+							"protocol": "https",
+							"host": [
+								"training",
+								"shar-it",
+								"com"
+							],
+							"path": [
+								"api",
+								"User",
+								"edit_user"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Логин и изменение данных существующего пользователя"
+		}
+	]
+}

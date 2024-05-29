@@ -1,0 +1,18 @@
+incorrect_email
+test>@example.com
+test<@example.com
+test@.com
+test@example.
+test@example.comm
+test@example.c
+test@example
+1
+почта@example.com
+test @example.com
+test;@example.com
+test:@example.com
+test]@example.com
+test[@example.com
+test@@example.com
+test,@example.com
+ 
